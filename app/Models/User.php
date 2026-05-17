@@ -51,4 +51,26 @@ class User extends Authenticatable
             'balance' => 'decimal:2', // Mengonversi string decimal DB ke tipe data float/numeric di PHP dengan aman
         ];
     }
+
+    // ==========================================
+    // RELASI TABEL NASABAH
+    // ==========================================
+
+    /**
+     * Relasi ke riwayat nota setoran sampah.
+     * Satu Nasabah memiliki banyak Setoran.
+     */
+    public function deposits()
+    {
+        return $this->hasMany(Deposit::class, 'nasabah_id');
+    }
+
+    /**
+     * Relasi ke riwayat penarikan tunai saldo.
+     * Satu Nasabah memiliki banyak Penarikan.
+     */
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class, 'nasabah_id');
+    }
 }

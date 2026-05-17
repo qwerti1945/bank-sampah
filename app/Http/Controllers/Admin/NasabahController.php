@@ -16,8 +16,19 @@ class NasabahController extends Controller
      */
     public function index(Request $request)
     {
-        // Menyaring user ber-role nasabah dan mencocokkan dengan query pencarian jika ada
+        // Menyaring user ber-role nasabah, memuat relasi transaksi, dan mencocokkan pencarian
         $nasabah = User::where('role', 'nasabah')
+            ->with([
+                // Memuat riwayat setor diurutkan dari yang terbaru beserta detail sampahnya
+                'deposits' => function ($query) {
+                    $query->latest();
+                },
+                'deposits.details.waste',
+                // Memuat riwayat tarik tunai diurutkan dari yang terbaru
+                'withdrawals' => function ($query) {
+                    $query->latest();
+                }
+            ])
             ->when($request->input('search'), function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")

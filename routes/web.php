@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\AdminDashboardController; // <-- Tambahkan import Controller Admin
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\DepositController;
 use App\Http\Controllers\Admin\NasabahController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WasteController;
+use App\Http\Controllers\Admin\WithdrawalController;
+use App\Http\Controllers\Admin\CollectorSaleController; 
+use App\Http\Controllers\Admin\GudangController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,13 +32,29 @@ Route::get('/dashboard', function () {
 // ==========================================
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Fitur Ekspor Excel Dashboard (Sudah diperbaiki penamaannya)
+    Route::get('/dashboard/export', [AdminDashboardController::class, 'exportExcel'])->name('dashboard.export');
+    
     Route::resource('wastes', WasteController::class);
+    
     // Rute Tambahan untuk Mengubah Role Pengguna
     Route::patch('nasabah/{nasabah}/change-role', [NasabahController::class, 'changeRole'])->name('nasabah.change-role');
     Route::resource('nasabah', NasabahController::class);
 
-    // Tambahkan baris ini untuk Kelola Admin/Super Admin
+    // Kelola Admin/Super Admin
     Route::resource('users', UserController::class);
+
+    // Loket Setor Sampah Nasabah
+    Route::resource('deposits', DepositController::class)->only(['index', 'store', 'destroy']);
+
+    // Loket Tarik Saldo Tunai Nasabah
+    Route::resource('withdrawals', WithdrawalController::class)->only(['index', 'store', 'destroy']);
+
+    // Modul Jual Ke Pengepul Besar
+    Route::resource('collector-sales', CollectorSaleController::class)->only(['index', 'store', 'destroy']);
+
+    Route::get('gudang', [GudangController::class, 'index'])->name('gudang.index');
 });
 
 // Route Profile bawaan Breeze

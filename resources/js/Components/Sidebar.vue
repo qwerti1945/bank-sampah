@@ -129,7 +129,7 @@ watch(isCollapsed, (newValue) => {
             </Link>
 
             <!-- ========================================================================= -->
-            <!-- KATEGORI: MASTER DATA (SEKARANG BERISI 3 MENU UTAMA) -->
+            <!-- KATEGORI: MASTER DATA -->
             <!-- ========================================================================= -->
             <div
                 v-show="!isCollapsed"
@@ -199,7 +199,7 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- 3. Kelola Tim Admin (BERHASIL DIPINDAH KE SINI) -->
+            <!-- 3. Kelola Tim Admin -->
             <Link
                 :href="route('admin.users.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -229,6 +229,36 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
+            <!-- 4. Stok Gudang (MENU BARU) -->
+            <Link
+                :href="route('admin.gudang.index')"
+                class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                :class="
+                    route().current('admin.gudang.*')
+                        ? 'bg-indigo-50 text-indigo-600'
+                        : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
+                "
+            >
+                <svg
+                    class="w-4 h-4 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    ></path>
+                </svg>
+                <span
+                    v-show="!isCollapsed"
+                    class="ml-3 text-sm font-medium whitespace-nowrap"
+                    >Stok Gudang</span
+                >
+            </Link>
+
             <!-- KATEGORI: TRANSAKSI -->
             <div
                 v-show="!isCollapsed"
@@ -240,8 +270,13 @@ watch(isCollapsed, (newValue) => {
 
             <!-- Setor Sampah -->
             <Link
-                href="#"
-                class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-all duration-200 group"
+                :href="route('admin.deposits.index')"
+                class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                :class="
+                    route().current('admin.deposits.*')
+                        ? 'bg-green-50 text-green-600'
+                        : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                "
             >
                 <svg
                     class="w-4 h-4 flex-shrink-0"
@@ -265,8 +300,13 @@ watch(isCollapsed, (newValue) => {
 
             <!-- Tarik Saldo -->
             <Link
-                href="#"
-                class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-all duration-200 group"
+                :href="route('admin.withdrawals.index')"
+                class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                :class="
+                    route().current('admin.withdrawals.*')
+                        ? 'bg-green-50 text-green-600'
+                        : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                "
             >
                 <svg
                     class="w-4 h-4 flex-shrink-0"
@@ -290,8 +330,13 @@ watch(isCollapsed, (newValue) => {
 
             <!-- Jual ke Pengepul -->
             <Link
-                href="#"
-                class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-all duration-200 group"
+                :href="route('admin.collector-sales.index')"
+                class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                :class="
+                    route().current('admin.collector-sales.*')
+                        ? 'bg-green-50 text-green-600'
+                        : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                "
             >
                 <svg
                     class="w-4 h-4 flex-shrink-0"

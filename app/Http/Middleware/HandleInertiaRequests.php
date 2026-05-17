@@ -31,8 +31,16 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            
+            // Berbagi data autentikasi user
             'auth' => [
                 'user' => $request->user(),
+            ],
+            
+            // TAMBAHKAN BLOK INI: Berbagi data notifikasi flash session ke frontend Vue
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
         ];
     }

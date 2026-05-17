@@ -22,6 +22,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'balance',
+        'phone',
+        'address',
     ];
 
     /**
@@ -44,6 +48,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'balance' => 'decimal:2', // Mengonversi string decimal DB ke tipe data float/numeric di PHP dengan aman
         ];
     }
 }

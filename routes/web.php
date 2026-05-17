@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminDashboardController; // <-- Tambahkan import Controller Admin
+use App\Http\Controllers\Admin\NasabahController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WasteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +28,13 @@ Route::get('/dashboard', function () {
 // ==========================================
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('wastes', WasteController::class);
+    // Rute Tambahan untuk Mengubah Role Pengguna
+    Route::patch('nasabah/{nasabah}/change-role', [NasabahController::class, 'changeRole'])->name('nasabah.change-role');
+    Route::resource('nasabah', NasabahController::class);
+
+    // Tambahkan baris ini untuk Kelola Admin/Super Admin
+    Route::resource('users', UserController::class);
 });
 
 // Route Profile bawaan Breeze

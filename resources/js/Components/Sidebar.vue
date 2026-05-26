@@ -28,7 +28,6 @@ watch(isCollapsed, (newValue) => {
 </script>
 
 <template>
-    <!-- Overlay Gelap Khusus Mobile -->
     <div
         v-if="showMobileMenu"
         @click="$emit('closeMobile')"
@@ -44,7 +43,6 @@ watch(isCollapsed, (newValue) => {
                 : '-translate-x-full md:translate-x-0',
         ]"
     >
-        <!-- Tombol Toggle Collapse (Desktop Only) -->
         <button
             @click="isCollapsed = !isCollapsed"
             class="hidden md:flex absolute -right-3.5 top-7 bg-white border border-gray-200 text-gray-400 hover:text-green-600 rounded-full p-1 shadow-sm transition-transform duration-300 focus:outline-none"
@@ -65,7 +63,6 @@ watch(isCollapsed, (newValue) => {
             </svg>
         </button>
 
-        <!-- Logo Area -->
         <div
             class="flex items-center justify-center h-20 border-b border-gray-50 flex-shrink-0"
         >
@@ -96,9 +93,7 @@ watch(isCollapsed, (newValue) => {
             </div>
         </div>
 
-        <!-- Menu Navigasi -->
         <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto hide-scrollbar">
-            <!-- Dashboard Menu -->
             <Link
                 :href="route('admin.dashboard')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -128,9 +123,6 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- ========================================================================= -->
-            <!-- KATEGORI: MASTER DATA -->
-            <!-- ========================================================================= -->
             <div
                 v-show="!isCollapsed"
                 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest pt-5 pb-2 pl-3"
@@ -139,7 +131,6 @@ watch(isCollapsed, (newValue) => {
             </div>
             <div v-show="isCollapsed" class="h-4"></div>
 
-            <!-- 1. Data Sampah -->
             <Link
                 :href="route('admin.wastes.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -169,7 +160,6 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- 2. Data Nasabah -->
             <Link
                 :href="route('admin.nasabah.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -199,8 +189,8 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- 3. Kelola Tim Admin -->
             <Link
+                v-if="$page.props.auth.user.role === 'super_admin'"
                 :href="route('admin.users.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
                 :class="
@@ -229,7 +219,6 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- 4. Stok Gudang (MENU BARU) -->
             <Link
                 :href="route('admin.gudang.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -259,7 +248,6 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- KATEGORI: TRANSAKSI -->
             <div
                 v-show="!isCollapsed"
                 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest pt-5 pb-2 pl-3"
@@ -268,7 +256,6 @@ watch(isCollapsed, (newValue) => {
             </div>
             <div v-show="isCollapsed" class="h-4"></div>
 
-            <!-- Setor Sampah -->
             <Link
                 :href="route('admin.deposits.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -298,7 +285,6 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- Tarik Saldo -->
             <Link
                 :href="route('admin.withdrawals.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -328,7 +314,6 @@ watch(isCollapsed, (newValue) => {
                 >
             </Link>
 
-            <!-- Jual ke Pengepul -->
             <Link
                 :href="route('admin.collector-sales.index')"
                 class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
@@ -357,99 +342,8 @@ watch(isCollapsed, (newValue) => {
                     >Jual ke Pengepul</span
                 >
             </Link>
-
-            <!-- KATEGORI: KELOLA WEBSITE -->
-            <div
-                v-show="!isCollapsed"
-                class="text-[11px] font-bold text-gray-400 uppercase tracking-widest pt-5 pb-2 pl-3"
-            >
-                Kelola Website
-            </div>
-            <div v-show="isCollapsed" class="h-4"></div>
-
-            <!-- Berita & Artikel -->
-            <Link
-                href="#"
-                class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-all duration-200 group"
-            >
-                <svg
-                    class="w-4 h-4 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                    ></path>
-                </svg>
-                <span
-                    v-show="!isCollapsed"
-                    class="ml-3 text-sm font-medium whitespace-nowrap"
-                    >Berita & Artikel</span
-                >
-            </Link>
-
-            <!-- Halaman Dinamis -->
-            <Link
-                href="#"
-                class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-all duration-200 group"
-            >
-                <svg
-                    class="w-4 h-4 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M4 6a2 2 0 012-2h8.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V18a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"
-                    ></path>
-                </svg>
-                <span
-                    v-show="!isCollapsed"
-                    class="ml-3 text-sm font-medium whitespace-nowrap"
-                    >Halaman Dinamis</span
-                >
-            </Link>
-
-            <!-- Pengaturan Web -->
-            <Link
-                href="#"
-                class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-all duration-200 group"
-            >
-                <svg
-                    class="w-4 h-4 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                    ></path>
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    ></path>
-                </svg>
-                <span
-                    v-show="!isCollapsed"
-                    class="ml-3 text-sm font-medium whitespace-nowrap"
-                    >Pengaturan Web</span
-                >
-            </Link>
         </nav>
 
-        <!-- User Profile Minimalis Area Bawah -->
         <div class="p-4 border-t border-gray-50 flex-shrink-0">
             <div class="flex items-center gap-3">
                 <div

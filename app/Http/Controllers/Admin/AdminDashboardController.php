@@ -20,9 +20,15 @@ class AdminDashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil Parameter Filter (Default ke Bulan & Tahun Saat Ini)
+        // 1. Ambil Parameter Filter Global (Default ke Bulan & Tahun Saat Ini)
         $year = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->format('m')); 
+
+        // 2. Ambil Parameter Khusus Akun Pasif (Default ke 12 Bulan jika tidak diisi)
+        $dormantMonths = (int) $request->input('dormant_months', 12);
+        if (!in_array($dormantMonths, [3, 6, 12])) {
+            $dormantMonths = 12; // Fallback jika parameter tidak valid
+        }
 
         $applyDateFilter = function ($query) use ($year, $month) {
             if ($year && $year !== 'all') {
@@ -57,7 +63,6 @@ class AdminDashboardController extends Controller
         $chartSubtitle = "";
 
         if ($year !== 'all' && $month !== 'all') {
-            // MODE HARIAN (1 BULAN)
             $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
             for ($i = 1; $i <= $daysInMonth; $i++) {
                 $chartDates[] = $i;
@@ -81,7 +86,6 @@ class AdminDashboardController extends Controller
             $chartSubtitle = "Bulan " . Carbon::createFromDate($year, $month, 1)->translatedFormat('F Y');
             
         } elseif ($year !== 'all' && $month === 'all') {
-            // MODE BULANAN (1 TAHUN)
             for ($i = 1; $i <= 12; $i++) {
                 $chartDates[] = Carbon::createFromDate($year, $i, 1)->translatedFormat('M');
                 $chartDepositData[$i] = 0;
@@ -104,7 +108,6 @@ class AdminDashboardController extends Controller
             $chartSubtitle = "Sepanjang Tahun " . $year;
 
         } else {
-            // MODE TAHUNAN (5 TAHUN TERAKHIR)
             $currentY = Carbon::now()->year;
             for ($i = 4; $i >= 0; $i--) {
                 $y = $currentY - $i;
@@ -136,7 +139,6 @@ class AdminDashboardController extends Controller
         $totalModalBeli = (float) Deposit::where($applyDateFilter)->sum('total_amount'); 
         $keuntunganBersih = $totalPendapatanPengepul - $totalModalBeli;
 
-        // Log Transaksi (Di Periode Tersebut)
         $recentDeposits = Deposit::with('nasabah:id,name')->where($applyDateFilter)->latest()->take(4)->get()
             ->map(fn($d) => [
                 'id' => $d->id, 'nasabah_name' => $d->nasabah->name ?? 'User Dihapus', 
@@ -155,7 +157,6 @@ class AdminDashboardController extends Controller
                 'amount' => $s->total_amount, 'date' => $s->created_at->diffForHumans()
             ]);
 
-        // Top 5 Gudang
         $topInventories = Waste::withSum(['depositDetails as total_in' => $applyDateFilter], 'qty')
             ->withSum(['collectorSaleDetails as total_out' => $applyDateFilter], 'qty')
             ->get()
@@ -168,7 +169,29 @@ class AdminDashboardController extends Controller
             })
             ->sortByDesc('total_in')->take(4)->values();
 
-        return Inertia::render('Admin/Dashboard', [
+        // ==================================================
+        // D. DETEKSI DANA MENGENDAP DENGAN BATAS BULAN DINAMIS
+        // ==================================================
+        $batasWaktuPasif = Carbon::now()->subMonths($dormantMonths);
+
+        $nasabahPasif = User::where('role', 'nasabah')
+            ->where('balance', '>', 0)
+            ->where(function ($query) use ($batasWaktuPasif) {
+                $query->whereDoesntHave('deposits', function ($subQuery) use ($batasWaktuPasif) {
+                    $subQuery->where('created_at', '>=', $batasWaktuPasif);
+                })
+                ->whereDoesntHave('withdrawals', function ($subQuery) use ($batasWaktuPasif) {
+                    $subQuery->where('created_at', '>=', $batasWaktuPasif);
+                });
+            })
+            ->get(['id', 'name', 'balance', 'updated_at']);
+
+        $totalDanaMengendap = (float) $nasabahPasif->sum('balance');
+
+        // ==================================================
+        // E. RENDER DATA PROPS
+        // ==================================================
+        return Inertia::render('Dashboard', [
             'stats' => [
                 'total_nasabah' => $totalNasabah,
                 'total_saldo' => $totalSaldoNasabah,
@@ -191,7 +214,10 @@ class AdminDashboardController extends Controller
             'filters' => [
                 'year' => $year,
                 'month' => str_pad($month, 2, '0', STR_PAD_LEFT)
-            ]
+            ],
+            'nasabahPasif' => $nasabahPasif,
+            'totalDanaMengendap' => $totalDanaMengendap,
+            'batasBulan' => $dormantMonths // Dikirim balik ke Vue untuk sinkronisasi dropdown
         ]);
     }
 

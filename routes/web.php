@@ -9,31 +9,36 @@ use App\Http\Controllers\Admin\WasteController;
 use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\Admin\CollectorSaleController; 
 use App\Http\Controllers\Admin\GudangController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\Nasabah\DashboardController as NasabahDashboardController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// ==========================================
+// RUTE UTAMA: LANGSUNG REDIRECT KE LOGIN
+// ==========================================
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('login');
 });
 
-// Route bawaan Breeze (Nantinya cocok untuk Dashboard Nasabah)
+// ==========================================
+// RUTE JEMBATAN PENGARAH (REDIRECT ROLE)
+// ==========================================
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    if (auth()->user()->role === 'admin' || auth()->user()->role === 'super_admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    return redirect()->route('nasabah.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
 // ==========================================
-// ROUTE KHUSUS ADMIN
+// ROUTE KHUSUS ADMIN & SUPER ADMIN
 // ==========================================
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     
-    // Fitur Ekspor Excel Dashboard (Sudah diperbaiki penamaannya)
+    // Fitur Ekspor Excel Dashboard
     Route::get('/dashboard/export', [AdminDashboardController::class, 'exportExcel'])->name('dashboard.export');
     
     Route::resource('wastes', WasteController::class);
@@ -42,26 +47,54 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('nasabah/{nasabah}/change-role', [NasabahController::class, 'changeRole'])->name('nasabah.change-role');
     Route::resource('nasabah', NasabahController::class);
 
-    // Kelola Admin/Super Admin
+    // Kelola Admin/Super Admin (Proteksi dipindah ke dalam Controller)
     Route::resource('users', UserController::class);
 
-    // Loket Setor Sampah Nasabah
-    Route::resource('deposits', DepositController::class)->only(['index', 'store', 'destroy']);
+    // Loket Setor Sampah Nasabah (Ditambahkan 'create')
+    Route::resource('deposits', DepositController::class)->only(['index', 'create', 'store', 'destroy']);
 
-    // Loket Tarik Saldo Tunai Nasabah
-    Route::resource('withdrawals', WithdrawalController::class)->only(['index', 'store', 'destroy']);
+    // Loket Tarik Saldo Tunai Nasabah (Ditambahkan 'create')
+    Route::resource('withdrawals', WithdrawalController::class)->only(['index', 'create', 'store', 'destroy']);
 
-    // Modul Jual Ke Pengepul Besar
-    Route::resource('collector-sales', CollectorSaleController::class)->only(['index', 'store', 'destroy']);
+    // Modul Jual Ke Pengepul Besar (Ditambahkan 'create')
+    Route::resource('collector-sales', CollectorSaleController::class)->only(['index', 'create', 'store', 'destroy']);
 
     Route::get('gudang', [GudangController::class, 'index'])->name('gudang.index');
 });
 
-// Route Profile bawaan Breeze
+// ==========================================
+// ROUTE KHUSUS NASABAH
+// ==========================================
+Route::middleware(['auth', 'verified'])->prefix('nasabah')->name('nasabah.')->group(function () {
+    Route::get('/dashboard', [NasabahDashboardController::class, 'index'])->name('dashboard');
+});
+
+// ==========================================
+// ROUTE PROFILE
+// ==========================================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/generate-symlink', function () {
+    // Menghapus link lama jika masih tersisa untuk memastikan kebersihan path
+    $shortcut = public_path('storage');
+    if (file_exists($shortcut) || is_link($shortcut)) {
+        @unlink($shortcut);
+    }
+
+    // Memicu perintah storage:link bawaan Laravel
+    Artisan::call('storage:link');
+
+    return 'Symlink gudang berhasil diperbarui!';
+});
+
 require __DIR__.'/auth.php';
+
+// ==========================================
+// OVERRIDE: NONAKTIFKAN TRANSAKSI REGISTRASI
+// ==========================================
+Route::get('/register', function () { abort(404); });
+Route::post('/register', function () { abort(404); });
